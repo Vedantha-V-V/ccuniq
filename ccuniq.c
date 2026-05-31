@@ -154,10 +154,6 @@ int main(int argc,char* argv[]){
         token = strtok(NULL, "\n");
     }
 
-    // return 0;
-    // -c --count is we number the lines
-    // -d --repeated is we print repeated lines
-    // -u uniq lines
     for(int i=1;i<argc;i++){
         if(!strcmp(argv[i],"-c")||!strcmp(argv[i],"--count")){
             count = true;
@@ -176,24 +172,27 @@ int main(int argc,char* argv[]){
     for(int i=0;i<size;i++){
         insert(map, arr[i]);
     }
-    int k = 0;
     char flag[10];
-    if(uniq){
-        strcpy(flag,"uniq");
-    }else if(repeat){
-        strcpy(flag,"repeated");
-    }
-    printf("%s\n",flag);
-    printf("Entered");
     for(int i=0;i<size;i++){
         int value = find(map,arr[i]);
+        if(value == -1) continue;
         if(count){
-            printf("%s %d\n", arr[i],find(map, arr[i],flag));
+            if(repeat){
+                if(value>1) printf("%d %s\n",value, arr[i]);
+            }else if(uniq){
+                if(value==1) printf("%d %s\n",value, arr[i]);
+            }else{
+                printf("%d %s\n",value, arr[i]);
+            }
         }else{
-            printf("%s %d\n", arr[i],find(map, arr[i],flag));
+            if(repeat){
+                if(value>1) printf("%s\n", arr[i]);
+            }else if(uniq){
+                if(value==1) printf("%s\n", arr[i]);
+            }else{
+                printf("%s\n",arr[i]);
+            }
         }
     }
-
-
     return 0;
 }

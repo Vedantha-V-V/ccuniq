@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
+#define SIZE 4096
 
 char* trim(char *str) {
     int length = strlen(str);
@@ -70,27 +70,6 @@ void insert(struct hash_map* map, char* key){
     return;
 }
 
-void delete (struct hash_map* map, char* key){
-    int bucket_index = hash(map, key);
-    struct node* prevNode = NULL;
-    struct node* currNode = map->arr[bucket_index];
-
-    while (currNode != NULL) {
-        if (strcmp(key, currNode->key) == 0) {
-            if (currNode == map->arr[bucket_index]) {
-                map->arr[bucket_index] = currNode->next;
-            }else {
-                prevNode->next = currNode->next;
-            }
-            free(currNode);
-            break;
-        }
-        prevNode = currNode;
-        currNode = currNode->next;
-    }
-    return;
-}
-
 int find(struct hash_map* map, char* key){
     int bucket_index = hash(map, key);
     struct node* head = map->arr[bucket_index];
@@ -106,42 +85,49 @@ int find(struct hash_map* map, char* key){
 
 int main(int argc,char* argv[]){
     char* input;
-    char* output;
+    char* output = NULL;
     bool count = false,uniq = false,repeat = false;
     FILE *file;
-    // if(argc == 1||argc == 2 && !strcmp(argv[1], "-")){
-    //     file = stdin;
-    // }else{
-    //     if(!strncmp(argv[argc-1]+strlen(argv[argc-1])-4,".txt",4) && !strncmp(argv[argc-2]+strlen(argv[argc-2])-4,".txt",4)){
-    //         input = argv[argc-2];
-    //         output = argv[argc-1];
-    //         file = fopen(input,"r");
-    //     }else if(!strncmp(argv[argc-1]+strlen(argv[argc-1])-4,".txt",4)){
-    //         input = argv[argc-1];
-    //         file = fopen(input,"r");
-    //     }else if(!strcmp(argv[argc-2], "-")&&!strncmp(argv[argc-1]+strlen(argv[argc-1])-4,".txt",4)){
-    //         output = argv[argc-1];
-    //         file = stdin;
-    //     }
-    // }
-    file = fopen("test.txt","r");
+    if(argc == 1||argc == 2 && !strcmp(argv[1], "-")){
+        file = stdin;
+    }else if(!strcmp(argv[argc-2], "-")&&!strncmp(argv[argc-1]+strlen(argv[argc-1])-4,".txt",4)){
+        output = argv[argc-1];
+        file = stdin;
+    }else if(!strncmp(argv[argc-1]+strlen(argv[argc-1])-4,".txt",4) && !strncmp(argv[argc-2]+strlen(argv[argc-2])-4,".txt",4)){
+        input = argv[argc-2];
+        output = argv[argc-1];
+        file = fopen(input,"r");
+    }else if(!strncmp(argv[argc-1]+strlen(argv[argc-1])-4,".txt",4)){
+        input = argv[argc-1];
+        file = fopen(input,"r");
+    }
+
     if(file == NULL){
         printf("uniq: %s No such file or directory",input);
         return 1;
     }
-    fseek(file,0,SEEK_END);
-    int length = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    char *data = malloc(sizeof(char)*(length+1));
     char c;
     int i = 0,size=0;
+    char* data = (char*)malloc(sizeof(char) * SIZE);
+    int capacity = SIZE;
+
     while((c=fgetc(file))!=EOF){
+        if(i >= capacity - 1){
+            capacity *= 2;
+            data = realloc(data, capacity);
+        }
         if(c=='\n') size++;
         data[i] = c;
         i++;
     }
     size++;
     data[i] = '\0';
+
+    struct hash_map* map = (struct hash_map*)malloc(sizeof(struct hash_map));
+    map->capacity = size;
+    map->num = 0;
+    map->arr = (struct node**)malloc(sizeof(struct node*) * map->capacity);
+
     i=0;
     char* arr[size];
     char* token = strtok(data, "\n");
@@ -154,6 +140,10 @@ int main(int argc,char* argv[]){
         token = strtok(NULL, "\n");
     }
 
+    for(int i=0;i<size;i++){
+        insert(map, arr[i]);
+    }
+
     for(int i=1;i<argc;i++){
         if(!strcmp(argv[i],"-c")||!strcmp(argv[i],"--count")){
             count = true;
@@ -164,35 +154,68 @@ int main(int argc,char* argv[]){
         }
     }
 
-    struct hash_map* map = (struct hash_map*)malloc(sizeof(struct hash_map));
-    map->capacity = size;
-    map->num = 0;
-    map->arr = (struct node**)malloc(sizeof(struct node*) * map->capacity);
-
-    for(int i=0;i<size;i++){
-        insert(map, arr[i]);
-    }
     char flag[10];
+    //char uniq_data[SIZE];
     for(int i=0;i<size;i++){
         int value = find(map,arr[i]);
         if(value == -1) continue;
         if(count){
             if(repeat){
-                if(value>1) printf("%d %s\n",value, arr[i]);
+                if(value>1){
+                    if(output){
+
+                    }else{
+                        printf("%d %s\n",value, arr[i]);
+                    }
+                }
             }else if(uniq){
-                if(value==1) printf("%d %s\n",value, arr[i]);
+                if(value==1){
+                    if(output){
+                        
+                    }else{
+                        printf("%d %s\n",value, arr[i]);
+                    }
+                }
             }else{
-                printf("%d %s\n",value, arr[i]);
+                if(output){
+                    
+                }else{
+                    printf("%d %s\n",value, arr[i]);
+                }
             }
         }else{
             if(repeat){
-                if(value>1) printf("%s\n", arr[i]);
+                if(value>1){
+                    if(output){
+                        
+                    }else{
+                        printf("%s\n", arr[i]);
+                    }   
+                }
             }else if(uniq){
-                if(value==1) printf("%s\n", arr[i]);
+                if(value==1){
+                    if(output){
+                        
+                    }else{
+                        printf("%s\n", arr[i]);
+                    }
+                }
             }else{
-                printf("%s\n",arr[i]);
+                if(output){
+                    
+                }else{
+                    printf("%s\n", arr[i]);
+                }
             }
         }
     }
+
+    if(output){
+        FILE* op;
+        op = fopen(output, "w");
+        fprintf(op, "Some text");
+        fclose(op);
+    }
+    fclose(file);
     return 0;
 }

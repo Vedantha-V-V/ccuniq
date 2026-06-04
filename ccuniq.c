@@ -151,11 +151,21 @@ int main(int argc,char* argv[]){
             repeat = true;
         }else if(!strcmp(argv[i],"-u")){
             uniq = true;
+        }else if(!strcmp(argv[i],"-h")||!strcmp(argv[i],"--help")){
+            printf("uniq [OPTION]... [INPUT] [OUTPUT]\n");
+            printf("Filters matching lines from INPUT (or standard input),writing to OUTPUT (or standard output).\n");
+            printf("OPTIONS:\n");
+            printf("With no FILE, or when FILE is -, read standard input\n");
+            printf("-c, --count show lines with number of occurences\n");
+            printf("-d, --repeated Only print duplicate lines, one each\n");
+            printf("-u Only print unique lines, one each\n");
+            return 0;
         }
     }
 
     char flag[10];
-    //char uniq_data[SIZE];
+    char* uniq_data = (char*)calloc(10,sizeof(char));
+    int n = 10;
     for(int i=0;i<size;i++){
         int value = find(map,arr[i]);
         if(value == -1) continue;
@@ -163,7 +173,17 @@ int main(int argc,char* argv[]){
             if(repeat){
                 if(value>1){
                     if(output){
-
+                        if(!uniq_data){
+                            n = strlen(arr[i])+3;
+                            uniq_data = realloc(uniq_data, n);
+                            strcpy(uniq_data,arr[i]);
+                            strcat(uniq_data,"\n");
+                        }else{
+                            n += strlen(arr[i])+3;
+                            uniq_data = realloc(uniq_data, n);
+                            strcat(uniq_data,arr[i]);
+                            strcat(uniq_data,"\n");
+                        }
                     }else{
                         printf("%d %s\n",value, arr[i]);
                     }
@@ -171,14 +191,34 @@ int main(int argc,char* argv[]){
             }else if(uniq){
                 if(value==1){
                     if(output){
-                        
+                        if(!uniq_data){
+                            n = strlen(arr[i])+3;
+                            uniq_data = realloc(uniq_data, n);
+                            strcpy(uniq_data,arr[i]);
+                            strcat(uniq_data,"\n");
+                        }else{
+                            n += strlen(arr[i])+3;
+                            uniq_data = realloc(uniq_data, n);
+                            strcat(uniq_data,arr[i]);
+                            strcat(uniq_data,"\n");
+                        }
                     }else{
                         printf("%d %s\n",value, arr[i]);
                     }
                 }
             }else{
                 if(output){
-                    
+                    if(!uniq_data){
+                        n = strlen(arr[i])+3;
+                        uniq_data = realloc(uniq_data, n);
+                        strcpy(uniq_data,arr[i]);
+                        strcat(uniq_data,"\n");
+                    }else{
+                        n += strlen(arr[i])+3;
+                        uniq_data = realloc(uniq_data, n);
+                        strcat(uniq_data,arr[i]);
+                        strcat(uniq_data,"\n");
+                    }
                 }else{
                     printf("%d %s\n",value, arr[i]);
                 }
@@ -187,7 +227,17 @@ int main(int argc,char* argv[]){
             if(repeat){
                 if(value>1){
                     if(output){
-                        
+                        if(!uniq_data){
+                            n = strlen(arr[i])+3;
+                            uniq_data = realloc(uniq_data, n);
+                            strcpy(uniq_data,arr[i]);
+                            strcat(uniq_data,"\n");
+                        }else{
+                            n += strlen(arr[i])+3;
+                            uniq_data = realloc(uniq_data, n);
+                            strcat(uniq_data,arr[i]);
+                            strcat(uniq_data,"\n");
+                        }
                     }else{
                         printf("%s\n", arr[i]);
                     }   
@@ -195,25 +245,46 @@ int main(int argc,char* argv[]){
             }else if(uniq){
                 if(value==1){
                     if(output){
-                        
+                        if(!uniq_data){
+                            n = strlen(arr[i])+3;
+                            uniq_data = realloc(uniq_data, n);
+                            strcpy(uniq_data,arr[i]);
+                            strcat(uniq_data,"\n");
+                        }else{
+                            n += strlen(arr[i])+3;
+                            uniq_data = realloc(uniq_data, n);
+                            strcat(uniq_data,arr[i]);
+                            strcat(uniq_data,"\n");
+                        }
                     }else{
                         printf("%s\n", arr[i]);
                     }
                 }
             }else{
                 if(output){
-                    
+                    if(!uniq_data){
+                        n = strlen(arr[i])+3;
+                        uniq_data = realloc(uniq_data, n);
+                        strcpy(uniq_data,arr[i]);
+                        strcat(uniq_data,"\n");
+                    }else{
+                        n += strlen(arr[i])+3;
+                        uniq_data = realloc(uniq_data, n);
+                        strcat(uniq_data,arr[i]);
+                        strcat(uniq_data,"\n");
+                    }
                 }else{
                     printf("%s\n", arr[i]);
                 }
             }
         }
     }
+    uniq_data[n]='\0';
 
     if(output){
         FILE* op;
         op = fopen(output, "w");
-        fprintf(op, "Some text");
+        fprintf(op,"%s",uniq_data);
         fclose(op);
     }
     fclose(file);

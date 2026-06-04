@@ -11,7 +11,7 @@ Lite version implementation of the Unix Command Line Tool uniq
 ## Running
 ```bash
 gcc -o uniq ccuniq.c
-./uniq [OPTIONS] [FILEPATH]
+./uniq [OPTIONS] [FILEPATH/s]
 ```
 
 ## Functionality

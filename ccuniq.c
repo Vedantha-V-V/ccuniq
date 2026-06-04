@@ -15,6 +15,20 @@ char* trim(char *str) {
     return str;
 }
 
+void concatenate(char* uniq_data,char* line,int* n){
+    if(*n==0){
+        *n = strlen(line)+3;
+        uniq_data = realloc(uniq_data, *n);
+        strcpy(uniq_data,line);
+        strcat(uniq_data,"\n");
+    }else{
+        *n += strlen(line)+3;
+        uniq_data = realloc(uniq_data, *n);
+        strcat(uniq_data,line);
+        strcat(uniq_data,"\n");
+    }
+}
+
 struct node {
     char* key;
     int value;
@@ -32,7 +46,7 @@ struct node* get_node(char* key, int value){
 };
 
 struct hash_map {
-    int num, capacity;
+    int capacity;
     struct node** arr;
 };
 
@@ -125,15 +139,14 @@ int main(int argc,char* argv[]){
 
     struct hash_map* map = (struct hash_map*)malloc(sizeof(struct hash_map));
     map->capacity = size;
-    map->num = 0;
     map->arr = (struct node**)malloc(sizeof(struct node*) * map->capacity);
 
     i=0;
-    char* arr[size];
+    char** arr = malloc(sizeof(char*)*size);
     char* token = strtok(data, "\n");
     while (token != NULL) {
         token = trim(token);
-        if(token!="\0"){
+        if(token[0]!='\0'){
             arr[i]=token;
         }
         i++;
@@ -163,9 +176,8 @@ int main(int argc,char* argv[]){
         }
     }
 
-    char flag[10];
     char* uniq_data = (char*)calloc(10,sizeof(char));
-    int n = 10;
+    int n = 0;
     for(int i=0;i<size;i++){
         int value = find(map,arr[i]);
         if(value == -1) continue;
@@ -173,17 +185,7 @@ int main(int argc,char* argv[]){
             if(repeat){
                 if(value>1){
                     if(output){
-                        if(!uniq_data){
-                            n = strlen(arr[i])+3;
-                            uniq_data = realloc(uniq_data, n);
-                            strcpy(uniq_data,arr[i]);
-                            strcat(uniq_data,"\n");
-                        }else{
-                            n += strlen(arr[i])+3;
-                            uniq_data = realloc(uniq_data, n);
-                            strcat(uniq_data,arr[i]);
-                            strcat(uniq_data,"\n");
-                        }
+                        concatenate(uniq_data,arr[i],&n);
                     }else{
                         printf("%d %s\n",value, arr[i]);
                     }
@@ -191,34 +193,14 @@ int main(int argc,char* argv[]){
             }else if(uniq){
                 if(value==1){
                     if(output){
-                        if(!uniq_data){
-                            n = strlen(arr[i])+3;
-                            uniq_data = realloc(uniq_data, n);
-                            strcpy(uniq_data,arr[i]);
-                            strcat(uniq_data,"\n");
-                        }else{
-                            n += strlen(arr[i])+3;
-                            uniq_data = realloc(uniq_data, n);
-                            strcat(uniq_data,arr[i]);
-                            strcat(uniq_data,"\n");
-                        }
+                        concatenate(uniq_data,arr[i],&n);
                     }else{
                         printf("%d %s\n",value, arr[i]);
                     }
                 }
             }else{
                 if(output){
-                    if(!uniq_data){
-                        n = strlen(arr[i])+3;
-                        uniq_data = realloc(uniq_data, n);
-                        strcpy(uniq_data,arr[i]);
-                        strcat(uniq_data,"\n");
-                    }else{
-                        n += strlen(arr[i])+3;
-                        uniq_data = realloc(uniq_data, n);
-                        strcat(uniq_data,arr[i]);
-                        strcat(uniq_data,"\n");
-                    }
+                    concatenate(uniq_data,arr[i],&n);
                 }else{
                     printf("%d %s\n",value, arr[i]);
                 }
@@ -227,17 +209,7 @@ int main(int argc,char* argv[]){
             if(repeat){
                 if(value>1){
                     if(output){
-                        if(!uniq_data){
-                            n = strlen(arr[i])+3;
-                            uniq_data = realloc(uniq_data, n);
-                            strcpy(uniq_data,arr[i]);
-                            strcat(uniq_data,"\n");
-                        }else{
-                            n += strlen(arr[i])+3;
-                            uniq_data = realloc(uniq_data, n);
-                            strcat(uniq_data,arr[i]);
-                            strcat(uniq_data,"\n");
-                        }
+                        concatenate(uniq_data,arr[i],&n);
                     }else{
                         printf("%s\n", arr[i]);
                     }   
@@ -245,41 +217,21 @@ int main(int argc,char* argv[]){
             }else if(uniq){
                 if(value==1){
                     if(output){
-                        if(!uniq_data){
-                            n = strlen(arr[i])+3;
-                            uniq_data = realloc(uniq_data, n);
-                            strcpy(uniq_data,arr[i]);
-                            strcat(uniq_data,"\n");
-                        }else{
-                            n += strlen(arr[i])+3;
-                            uniq_data = realloc(uniq_data, n);
-                            strcat(uniq_data,arr[i]);
-                            strcat(uniq_data,"\n");
-                        }
+                        concatenate(uniq_data,arr[i],&n);
                     }else{
                         printf("%s\n", arr[i]);
                     }
                 }
             }else{
                 if(output){
-                    if(!uniq_data){
-                        n = strlen(arr[i])+3;
-                        uniq_data = realloc(uniq_data, n);
-                        strcpy(uniq_data,arr[i]);
-                        strcat(uniq_data,"\n");
-                    }else{
-                        n += strlen(arr[i])+3;
-                        uniq_data = realloc(uniq_data, n);
-                        strcat(uniq_data,arr[i]);
-                        strcat(uniq_data,"\n");
-                    }
+                    concatenate(uniq_data,arr[i],&n);
                 }else{
                     printf("%s\n", arr[i]);
                 }
             }
         }
     }
-    uniq_data[n]='\0';
+    uniq_data[n-1]='\0';
 
     if(output){
         FILE* op;
@@ -288,5 +240,8 @@ int main(int argc,char* argv[]){
         fclose(op);
     }
     fclose(file);
+    free(data);
+    free(map->arr);
+    free(map);
     return 0;
 }
